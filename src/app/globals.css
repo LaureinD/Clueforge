@@ -1,26 +1,156 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* default css next.js */
+  /*--color-background: var(--background);*/
+  /*--color-foreground: var(--foreground);*/
+  /*--font-sans: var(--font-geist-sans);*/
+  /*--font-mono: var(--font-geist-mono);*/
+
+  /* custom fonts */
+  --font-wix: 'WixMadeforText', sans-serif;
+
+  /* Custom colors */
+  --color-primary: #1977D6;
+  --color-primary-light: #D2E6FC;
+  --color-secondary: #546679;
+  --color-secondary-light: #DFE3E7;
+  --color-accent: #4ECAC2;
+  --color-accent-light: #DCF4F3;
+
+  --color-background: #EFEFEF;
+  --color-surface: #FFFFFF;
+
+  --color-text-primary: #1C1C27;
+  --color-text-muted: #6B7280;
+
+  --color-success: #22C55E;
+  --color-success-light: #D3F3DF;
+  --color-warning: #F9B931;
+  --color-warning-light: #FEF1D6;
+  --color-danger: #EF5F5F;
+  --color-danger-light: #FCDFDF;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #22282E;
+    --foreground: #282F36;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Custom fonts */
+@font-face {
+  font-family: 'WixMadeforText';
+  src: url('/fonts/WixMadeforText-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'WixMadeforText';
+  src: url('/fonts/WixMadeforText-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'WixMadeforText';
+  src: url('/fonts/WixMadeforText-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'WixMadeforText';
+  src: url('/fonts/WixMadeforText-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'WixMadeforText';
+  src: url('/fonts/WixMadeforText-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ====== Italic varianten ====== */
+@font-face {
+  font-family: 'WixMadeforText';
+  src: url('/fonts/WixMadeforText-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'WixMadeforText';
+  src: url('/fonts/WixMadeforText-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'WixMadeforText';
+  src: url('/fonts/WixMadeforText-SemiBoldItalic.ttf') format('truetype');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'WixMadeforText';
+  src: url('/fonts/WixMadeforText-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'WixMadeforText';
+  src: url('/fonts/WixMadeforText-ExtraBoldItalic.ttf') format('truetype');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@layer utilities {
+  .bg-brush-primary {
+    background-image: url("/img/backgrounds/brush-primary.svg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .bg-brush-success {
+    background-image: url("/img/backgrounds/brush-success.svg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .bg-brush-warning {
+    background-image: url("/img/backgrounds/brush-warning.svg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .bg-brush-danger {
+    background-image: url("/img/backgrounds/brush-danger.svg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .z-999 {
+    z-index: 999;
+  }
 }

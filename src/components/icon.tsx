@@ -2,6 +2,8 @@ import {ComponentProps, FC, SVGProps} from "react";
 import {
     HomeIcon,
     UserIcon,
+    UserPlusIcon,
+    UserGroupIcon,
     CogIcon,
     ChevronRightIcon,
     PlusIcon,
@@ -9,9 +11,11 @@ import {
     PencilIcon,
 } from "@heroicons/react/24/outline";
 
-type IconName =
+export type IconName =
     | 'home'
     | 'user'
+    | 'userPlus'
+    | 'userGroup'
     | 'cog'
     | 'chevronRight'
     | 'plus'
@@ -22,6 +26,8 @@ type IconName =
 const iconMap: Record<IconName, FC<SVGProps<SVGSVGElement>>> = {
     home: HomeIcon,
     user: UserIcon,
+    userPlus: UserPlusIcon,
+    userGroup: UserGroupIcon,
     cog: CogIcon,
     chevronRight: ChevronRightIcon,
     plus: PlusIcon,

@@ -26,7 +26,7 @@
   --color-danger-light: #FCDFDF;
 
   /* Custom breakpoints */
-  --breakpoint-3xl: 120rem;
+  --breakpoint-3xl: 200rem;
 
 }
 

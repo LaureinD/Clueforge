@@ -1,6 +1,5 @@
-import Prisma from "../../../../generated/prisma/client"
 import prisma from "@/database/prisma";
-import { User } from "../../../../generated/prisma/client";
+import { User } from "../../../generated/prisma/client";
 
 type CreateUserData = {
     email: string,
@@ -45,7 +44,7 @@ export async function updateUser(id:number, data: UpdateUserData): Promise<User>
             data,
         })
     } catch (error) {
-        throw new Error;
+        throw error;
     }
 }
 

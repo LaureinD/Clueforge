@@ -29,7 +29,7 @@ export default function backendLayout(
                     <Icon name={"chevronRight"} className={"size-4"}/>
                 </div>
             </nav>
-            <div className={"flex-grow h-screen overflow-y-scroll p-6"}>
+            <div className={"flex-grow h-screen bg-success overflow-y-scroll p-6"}>
                 {children}
             </div>
         </div>

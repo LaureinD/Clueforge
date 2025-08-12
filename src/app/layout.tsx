@@ -16,7 +16,7 @@ export default function RootLayout(
   return (
     <html lang="en">
       <body
-        className={"font-wix antialiased min-h-screen"}>
+        className={"font-wix antialiased min-h-screen text-text-primary"}>
         {children}
       </body>
     </html>

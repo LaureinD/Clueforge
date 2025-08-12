@@ -2,7 +2,7 @@ import prisma from "@/database/prisma";
 import {userSeeder} from "@/database/seeders/userSeeder";
 
 async function main() {
-    await userSeeder(50);
+    await userSeeder();
 }
 
 main()

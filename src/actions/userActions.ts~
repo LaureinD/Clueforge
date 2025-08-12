@@ -1,0 +1,35 @@
+"use server";
+
+import {CreateUserErrors, validateCreateUserData} from "@/database/validation/userValidation";
+import {addUser, CreateUserData} from "@/database/services/userService";
+import {capitalize} from "@/utils/helpers";
+import bcrypt from "bcrypt";
+
+export type Formstate = {
+    errors: CreateUserErrors
+}
+
+export async function createUser(formData: FormData): Promise<Formstate> {
+    const createUserData: CreateUserData = {
+        email: (formData.get("email") as string).toLowerCase(),
+        password: formData.get("password") as string,
+        first_name: capitalize(formData.get("first_name") as string),
+        last_name: capitalize(formData.get("last_name") as string),
+    }
+
+    const errors = await validateCreateUserData(createUserData)
+    if (Object.keys(errors).length > 0) {
+        return { errors };
+    }
+
+    createUserData.password = await bcrypt.hash(createUserData.password, 10);
+
+    try {
+        await addUser(createUserData)
+
+    } catch (error) {
+        console.log('Failed to create user: ', error)
+    }
+
+    return { errors: {} }
+}

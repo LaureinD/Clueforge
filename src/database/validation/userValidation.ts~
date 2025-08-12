@@ -1,0 +1,71 @@
+import {CreateUserData} from "@/database/services/userService";
+import prisma from "@/database/prisma";
+
+export interface CreateUserErrors {
+    email?: string[];
+    password?: string[];
+    first_name?: string[];
+    last_name?: string[];
+}
+
+export async function validateCreateUserData(data: CreateUserData): Promise<CreateUserErrors>{
+    const errors: CreateUserErrors = {};
+
+    // Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const existingUser = await prisma.user.findUnique({
+        where: {
+            email: data.email.toLowerCase()
+        },
+        select: {
+            id: true
+        }
+    })
+
+    if (!data.email) {
+        errors.email = ['Email is required.'];
+
+    } else if (!emailRegex.test(data.email.toLowerCase())) {
+        errors.email = errors.email || [];
+        errors.email.push('Invalid email format.')
+
+    } else if (existingUser) {
+        errors.email = errors.email || [];
+        errors.email.push('Email already exists.')
+    }
+
+    // Password
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[\d\W]).+$/;
+
+    if (!data.password) {
+        errors.password = ['Password is required.'];
+
+    } else if (data.password.length < 8) {
+        errors.password = errors.password || [];
+        errors.password.push('Password must be at least 8 characters.')
+
+    } else if (!passwordRegex.test(data.password)) {
+        errors.password = errors.password || [];
+        errors.password.push('Password must contain at least one uppercase letter, one letter and one number or special character.')
+    }
+
+    // First name
+    if (!data.first_name) {
+        errors.first_name = ['First name is required.'];
+
+    } else if (data.first_name.length < 2) {
+        errors.first_name = errors.first_name || [];
+        errors.first_name.push('First name must be at least 2 characters.')
+    }
+
+    // Last name
+    if (!data.last_name) {
+        errors.last_name = ['Last name is required.'];
+
+    } else if (data.last_name.length < 2) {
+        errors.last_name = errors.last_name || [];
+        errors.last_name.push('Last name must be at least 2 characters')
+    }
+
+    return errors;
+}

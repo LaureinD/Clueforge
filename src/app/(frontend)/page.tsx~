@@ -11,7 +11,7 @@ export default function Home(){
                 <h2 className={"text-2xl leading-10"}>Design your own puzzles, rooms and stories. <br/>
                     Let players escape your imagination.</h2>
                 <div className={"p-12 flex flex-col gap-6"}>
-                    <Button size={'md'} color={'success'}>
+                    <Button>
                         Get ClueForge for free!
                     </Button>
                     <Link href={'/login'}>Already have an account? Log in.</Link>

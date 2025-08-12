@@ -9,6 +9,10 @@ import {
     PlusIcon,
     TrashIcon,
     PencilIcon,
+    InformationCircleIcon,
+    CheckIcon,
+    XMarkIcon,
+    ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 
 export type IconName =
@@ -21,6 +25,10 @@ export type IconName =
     | 'plus'
     | 'trash'
     | 'pencil'
+    | 'info'
+    | 'check'
+    | 'x'
+    | 'arrowPath'
 ;
 
 const iconMap: Record<IconName, FC<SVGProps<SVGSVGElement>>> = {
@@ -33,6 +41,10 @@ const iconMap: Record<IconName, FC<SVGProps<SVGSVGElement>>> = {
     plus: PlusIcon,
     trash: TrashIcon,
     pencil: PencilIcon,
+    info: InformationCircleIcon,
+    check: CheckIcon,
+    x: XMarkIcon,
+    arrowPath: ArrowPathIcon,
 };
 
 interface IconProps {

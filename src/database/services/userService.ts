@@ -1,14 +1,14 @@
 import prisma from "@/database/prisma";
 import { User } from "../../../generated/prisma/client";
 
-type CreateUserData = {
+export type CreateUserData = {
     email: string,
     password: string,
     first_name: string,
     last_name: string,
 }
 
-type UpdateUserData =
+export type UpdateUserData =
     Partial<CreateUserData>
     & {
         email_verified_at?: Date,

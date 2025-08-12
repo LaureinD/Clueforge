@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
-@theme inline {
+@theme {
   /* Custom fonts */
   --font-wix: 'WixMadeforText', sans-serif;
 
   /* Custom colors */
   --color-primary: #1977D6;
   --color-primary-light: #D2E6FC;
-  --color-secondary: #546679;
-  --color-secondary-light: #DFE3E7;
+  --color-secondary: #a6b3c1;
+  --color-secondary-light: #E3E8ED;
   --color-accent: #4ECAC2;
   --color-accent-light: #DCF4F3;
 
@@ -150,5 +150,9 @@
 
   .z-999 {
     z-index: 999;
+  }
+
+  .shadow-bottom {
+    box-shadow: 0 1px 0 0 rgba(0,0,0,0.3);
   }
 }

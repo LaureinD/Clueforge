@@ -48,7 +48,7 @@ export default async function UsersIndex(){
                 <KpiCard icon={"userGroup"} color={"primary"} name={"All users"} value={countAllUsers} tooltip={"All users"} />
                 <KpiCard icon={"userPlus"} color={"success"} name={"New users"} value={countNewUsers} tooltip={"Users created during the last 30 days."} />
                 <KpiCard icon={"user"} color={"warning"} name={"Active users"} value={countActiveUsers} tooltip={"Users who logged in during the last 30 days."} />
-                <KpiCard icon={"arrowPath"} color={"accent"} name={"Retention rate"} value={retentionRate+' %'} tooltip={"Percentage of new users who are still active 14 days after creating their account."} className={"hidden 3xl:flex"} />
+                <KpiCard icon={"arrowPath"} color={"accent"} name={"Retention rate"} value={retentionRate+' %'} tooltip={"Percentage of new users who are active after 14 days."} className={"hidden 3xl:flex"} />
             </div>
 
             <div className={"w-full overflow-y-scroll px-6 bg-surface rounded shadow-xl"}>

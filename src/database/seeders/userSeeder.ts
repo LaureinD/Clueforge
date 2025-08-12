@@ -1,29 +1,91 @@
 import type { User } from "../../../generated/prisma/client";
 import bcrypt from "bcrypt";
 import prisma from "@/database/prisma";
+import {faker} from "@faker-js/faker/locale/en";
 
-export async function userSeeder(){
-    const count: number = await prisma.user.count();
+async function clearUserTable(){
+    try {
+        const deleted = await prisma.user.deleteMany();
+        console.log(`Cleared users table. ${deleted.count} users have been deleted.`);
 
-    if (count === 0){
-        const now = new Date();
+        try {
+            await prisma.$executeRawUnsafe(`DELETE FROM sqlite_sequence WHERE name='User';`);
+            console.log('Auto increment on users table reset')
+        } catch (error) {
+            console.log('Could not reset auto increment on users table:', error)
+        }
 
-        const users: Omit<User, 'id' | 'last_login' | 'deleted_at'>[] = [
-            {email: 'admin@example.com', password: 'password', first_name: 'admin', last_name: 'admin', email_verified_at: now, created_at: now, updated_at: now},
-            {email: 'user@example.com', password: 'password', first_name: 'user', last_name: 'user', email_verified_at: now, created_at: now, updated_at: now},
-        ]
-
-        const userData = await Promise.all(
-            users.map( async user => {
-                return {
-                    ...user,
-                    password: await bcrypt.hash(user.password,10),
-                }
-            })
-        )
-
-        await prisma.user.createMany({
-            data: userData,
-        })
+    } catch (error) {
+        console.error("Failed to clear users:", error);
     }
+}
+
+async function createRandomUser(password: string, now: Date): Promise<Omit<User, 'id' | 'last_login' | 'deleted_at'>>{
+    const first_name = faker.person.firstName();
+    const last_name = faker.person.lastName();
+
+    return {
+        email: (first_name+'.'+last_name+'@example.com').toLowerCase(),
+        password: password,
+        first_name: first_name,
+        last_name: last_name,
+        email_verified_at: now,
+        created_at: now,
+        updated_at: now,
+    }
+}
+
+export async function userSeeder(amountOfUsers: number){
+    await clearUserTable();
+
+    const admin: number = await prisma.user.count({
+        where: {
+            first_name: 'admin'
+        }
+    });
+
+    const user = await prisma.user.count({
+        where: {
+            first_name: 'user'
+        }
+    });
+
+    const now = new Date();
+    const password = await bcrypt.hash('password',10);
+
+    const users: Omit<User, 'id' | 'last_login' | 'deleted_at'>[] = []
+
+    if (admin === 0) {
+
+        users.push({
+            email: 'admin@example.com',
+            password: password,
+            first_name: 'admin',
+            last_name: 'admin',
+            email_verified_at: now,
+            created_at: now,
+            updated_at: now,
+        });
+    }
+
+    if (user === 0) {
+        users.push({
+            email: 'user@example.com',
+            password: password,
+            first_name: 'user',
+            last_name: 'user',
+            email_verified_at: now,
+            created_at: now,
+            updated_at: now,
+        });
+    }
+
+    const randomUsers = await Promise.all(
+        Array.from({length: amountOfUsers}, () => createRandomUser(password, now))
+    );
+    users.push(...randomUsers);
+
+    await prisma.user.createMany({
+        data: users,
+    })
 }

@@ -1,3 +1,6 @@
-export default function Login(){
-    return <h1>Login</h1>
+import LoginForm from "@/app/(frontend)/(auth)/login/loginForm";
+
+export default async function Login(){
+
+    return <LoginForm />
 }

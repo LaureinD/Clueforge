@@ -1,8 +1,20 @@
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Card } from "@/components/card";
+import {hashPassword, verifyPassword} from "@/utils/auth";
 
-export default function Home(){
+export default async function Home(){
+
+    const hash = await hashPassword("Secret123!");
+    console.log(hash);
+// bv: scrypt$4d2f...$8a7b...
+
+    const ok = await verifyPassword("Secret123!", hash); // true
+    const fail = await verifyPassword("WrongPass", hash); // false
+
+    console.log(fail);
+    console.log(ok);
+
     return (
         <div className={"p-6"}>
             <div className={"w-1/2 mx-auto min-h-[50vh] flex justify-center items-center flex-col gap-6 text-center"}>
@@ -11,7 +23,7 @@ export default function Home(){
                 <h2 className={"text-2xl leading-10"}>Design your own puzzles, rooms and stories. <br/>
                     Let players escape your imagination.</h2>
                 <div className={"p-12 flex flex-col gap-6"}>
-                    <Button>
+                    <Button size={'md'} color={'success'}>
                         Get ClueForge for free!
                     </Button>
                     <Link href={'/login'}>Already have an account? Log in.</Link>

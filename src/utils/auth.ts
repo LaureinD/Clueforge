@@ -1,0 +1,34 @@
+"use server"
+
+import {scrypt, randomBytes, timingSafeEqual} from "node:crypto";
+
+export async function hashPassword(password: string): Promise<string> {
+    const salt = randomBytes(16).toString("hex");
+    const hashedPassword = await new Promise<Buffer>((resolve, reject) => {
+        scrypt(password,salt,64, (error, derivedKey) => {
+            if (error) reject(error);
+            else resolve(derivedKey as Buffer);
+        });
+    });
+
+    return `scrypt$${salt}$${hashedPassword.toString("hex")}`
+}
+
+export async function verifyPassword(password: string, storedPassword: string): Promise<boolean> {
+    const [method, salt, hashHex] = storedPassword.split("$");
+    if(method !== 'scrypt' || !salt || !hashHex){
+        throw new Error("Invalid hash format");
+    }
+
+    const hashedPassword = await new Promise<Buffer>((resolve, reject) => {
+        scrypt(password, salt, 64, (error, derivedKey) => {
+            if (error) reject(error);
+            else resolve(derivedKey as Buffer);
+        });
+    });
+    const keyBuffer = Buffer.from(hashHex, "hex");
+
+    return (
+        hashedPassword.length === keyBuffer.length && timingSafeEqual(hashedPassword, keyBuffer)
+    );
+}

@@ -1,0 +1,24 @@
+import {redirect} from "next/navigation";
+import {cookies} from "next/headers";
+import {prisma} from "@/database/prisma";
+import LoginForm from "@/app/(frontend)/(auth)/login/loginForm";
+
+export default async function Login(){
+    console.log('login');
+    // const cookieStore = await cookies();
+    // const access_token = cookieStore.get("access_token")?.value;
+    //
+    // if (access_token) {
+    //     const session = await prisma.session.findUnique({
+    //         where: {
+    //             access_token
+    //         }
+    //     });
+    //
+    //     if (session && !session.revoked_at && session.access_expire > new Date()) {
+    //         redirect("/app");
+    //     }
+    // }
+
+    return <LoginForm />
+}

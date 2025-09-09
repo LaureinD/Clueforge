@@ -1,0 +1,91 @@
+import bcrypt from "bcrypt";
+import {faker} from "@faker-js/faker/locale/en";
+import {prisma} from "@/database/prisma";
+import {User} from "@prisma/client";
+
+async function clearUserTable(){
+    try {
+        const deleted = await prisma.user.deleteMany();
+        console.log(`Cleared users table. ${deleted.count} users have been deleted.`);
+
+        try {
+            await prisma.$executeRawUnsafe(`DELETE FROM sqlite_sequence WHERE name='User';`);
+            console.log('Auto increment on users table reset')
+        } catch (error) {
+            console.log('Could not reset auto increment on users table:', error)
+        }
+
+    } catch (error) {
+        console.error("Failed to clear users:", error);
+    }
+}
+
+async function createRandomUser(password: string, now: Date): Promise<Omit<User, 'id' | 'last_login' | 'deleted_at'>>{
+    const first_name = faker.person.firstName();
+    const last_name = faker.person.lastName();
+
+    return {
+        email: (first_name+'.'+last_name+'@example.com').toLowerCase(),
+        password: password,
+        first_name: first_name,
+        last_name: last_name,
+        email_verified_at: now,
+        created_at: now,
+        updated_at: now,
+    }
+}
+
+export async function userSeeder(amountOfUsers: number){
+    await clearUserTable();
+
+    const admin: number = await prisma.user.count({
+        where: {
+            first_name: 'admin'
+        }
+    });
+
+    const user = await prisma.user.count({
+        where: {
+            first_name: 'user'
+        }
+    });
+
+    const now = new Date();
+    const password = await bcrypt.hash('password',10);
+
+    const users: Omit<User, 'id' | 'last_login' | 'deleted_at'>[] = []
+
+    if (admin === 0) {
+
+        users.push({
+            email: 'admin@example.com',
+            password: password,
+            first_name: 'admin',
+            last_name: 'admin',
+            email_verified_at: now,
+            created_at: now,
+            updated_at: now,
+        });
+    }
+
+    if (user === 0) {
+        users.push({
+            email: 'user@example.com',
+            password: password,
+            first_name: 'user',
+            last_name: 'user',
+            email_verified_at: now,
+            created_at: now,
+            updated_at: now,
+        });
+    }
+
+    const randomUsers = await Promise.all(
+        Array.from({length: amountOfUsers}, () => createRandomUser(password, now))
+    );
+    users.push(...randomUsers);
+
+    await prisma.user.createMany({
+        data: users,
+    })
+}

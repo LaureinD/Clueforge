@@ -1,5 +1,6 @@
-import prisma from "@/database/prisma";
-import { User } from "../../../generated/prisma/client";
+import {prisma} from "@/database/prisma";
+import {User} from "@prisma/client";
+
 
 export type CreateUserData = {
     email: string,

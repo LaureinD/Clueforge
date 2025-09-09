@@ -1,0 +1,24 @@
+export async function setCookie(
+    {
+        name,
+        value,
+        secure = true,
+        sameSite = true,
+        httpOnly = true,
+        path = '/',
+        maxAge
+    }:
+    {
+        name: string,
+        value: string | number | boolean,
+        secure?: boolean,
+        sameSite?: boolean,
+        httpOnly?: boolean,
+        path?: string,
+        maxAge
+            :
+            number,
+    }
+    ) {
+
+}

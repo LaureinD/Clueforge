@@ -1,5 +1,5 @@
 import {Card} from "@/components/card";
-import {Button} from "@/components/button";
+import {Button} from "@/components/ui/button";
 
 
 export default function Pricing() {

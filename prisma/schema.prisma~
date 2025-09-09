@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:ClueForge.sqlite"
+}
+
+// Models
+model User {
+  id                Int       @id @default(autoincrement())
+  email             String    @unique
+  password          String
+  first_name        String
+  last_name         String
+
+  email_verified_at DateTime?
+  last_login        DateTime?
+
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  deleted_at        DateTime?
+
+  Session                Session[]
+  EmailVerificationToken EmailVerificationToken[]
+}
+
+model EmailVerificationToken {
+  id         String    @id @default(cuid())
+  token      String    @unique
+
+  userId     Int
+  user       User      @relation(fields: [userId], references: [id])
+
+  created_at DateTime  @default(now())
+  revoked_at DateTime?
+}
+
+model Session {
+  refresh_token  String    @id @default(cuid())
+  access_token   String    @unique
+
+  userId         Int
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  access_expire  DateTime
+  refresh_expire DateTime
+  created_at     DateTime  @default(now())
+  revoked_at     DateTime?
+
+  @@index([userId])
+  @@index([access_expire])
+  @@index([refresh_expire])
+}

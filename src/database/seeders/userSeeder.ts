@@ -1,7 +1,7 @@
-import type { User } from "../../../generated/prisma/client";
-import bcrypt from "bcrypt";
-import prisma from "@/database/prisma";
 import {faker} from "@faker-js/faker/locale/en";
+import {prisma} from "@/database/prisma";
+import {User} from "@prisma/client";
+import {hashPassword} from "@/utils/auth";
 
 async function clearUserTable(){
     try {
@@ -51,7 +51,7 @@ export async function userSeeder(amountOfUsers: number){
     });
 
     const now = new Date();
-    const password = await bcrypt.hash('password',10);
+    const password = await hashPassword('password');
 
     const users: Omit<User, 'id' | 'last_login' | 'deleted_at'>[] = []
 

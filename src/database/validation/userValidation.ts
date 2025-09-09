@@ -1,71 +1,59 @@
-import {CreateUserData} from "@/database/services/userService";
-import prisma from "@/database/prisma";
+import {prisma} from "@/database/prisma";
 
-export interface CreateUserErrors {
-    email?: string[];
-    password?: string[];
-    first_name?: string[];
-    last_name?: string[];
+export interface UserRegisterInput {
+    email: string,
+    password: string,
+    passwordConfirm: string
+    first_name: string,
+    last_name: string,
+    acceptedTerms: boolean,
 }
 
-export async function validateCreateUserData(data: CreateUserData): Promise<CreateUserErrors>{
-    const errors: CreateUserErrors = {};
+export async function validateUserRegisterInput(input: UserRegisterInput){
+    const { email, password, passwordConfirm, first_name, last_name, acceptedTerms } = input;
+    const errors: Record<string, string> = {};
 
-    // Email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const existingUser = await prisma.user.findUnique({
         where: {
-            email: data.email.toLowerCase()
+            email
         },
         select: {
             id: true
         }
     })
+    const nameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ]{2,}$/;
 
-    if (!data.email) {
-        errors.email = ['Email is required.'];
+    if (!email) errors.email = "Email is required."
+    else if (!emailRegex.test(email)) errors.email = "Please enter a valid email."
+    else if (existingUser) errors.email = "Email is already in use."
 
-    } else if (!emailRegex.test(data.email.toLowerCase())) {
-        errors.email = errors.email || [];
-        errors.email.push('Invalid email format.')
+    if (!password) errors.password = "Password is required."
+    else if (password.length < 8) errors.password = "Password must contain at least 8 characters."
 
-    } else if (existingUser) {
-        errors.email = errors.email || [];
-        errors.email.push('Email already exists.')
+    if (password !== passwordConfirm) errors.passwordConfirm = "Passwords don't match"
+
+    if (!first_name) errors.first_name = "First name is required."
+    else if (first_name.length < 2) errors.first_name = "First name must contain at least 2 characters."
+    else if (!nameRegex.test(first_name)) errors.first_name = "First name can only contain letters."
+
+    if (!last_name) errors.last_name = "Last name is required."
+    else if (last_name.length < 2) errors.last_name = "Last name must contain at least 2 characters."
+    else if (!nameRegex.test(last_name)) errors.last_name = "Last name can only contain letters."
+
+    if (!acceptedTerms) errors.acceptedTerms = "The terms and conditions must be accepted."
+
+    console.log(errors)
+
+    if (Object.keys(errors).length > 0) {
+        return {
+            success: false,
+            errors
+        };
+    } else {
+        return {
+            success: true,
+            errors: {}
+        }
     }
-
-    // Password
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d\W]).+$/;
-
-    if (!data.password) {
-        errors.password = ['Password is required.'];
-
-    } else if (data.password.length < 8) {
-        errors.password = errors.password || [];
-        errors.password.push('Password must be at least 8 characters.')
-
-    } else if (!passwordRegex.test(data.password)) {
-        errors.password = errors.password || [];
-        errors.password.push('Password must contain at least one uppercase letter, one letter and one number or special character.')
-    }
-
-    // First name
-    if (!data.first_name) {
-        errors.first_name = ['First name is required.'];
-
-    } else if (data.first_name.length < 2) {
-        errors.first_name = errors.first_name || [];
-        errors.first_name.push('First name must be at least 2 characters.')
-    }
-
-    // Last name
-    if (!data.last_name) {
-        errors.last_name = ['Last name is required.'];
-
-    } else if (data.last_name.length < 2) {
-        errors.last_name = errors.last_name || [];
-        errors.last_name.push('Last name must be at least 2 characters')
-    }
-
-    return errors;
 }

@@ -11,7 +11,7 @@ export default function WhyClueForge() {
                 <h2 className={"text-xl leading-8"}>ClueForge makes designing interactive escape rooms simple, fun, and accessible.
                     By organizing the entire creation process in a clear and intuitive way, you can focus on crafting engaging puzzles.</h2>
                 <div className={"p-8 flex flex-col gap-6"}>
-                    <Button>
+                    <Button size={'md'} color={'success'}>
                         Get ClueForge for free!
                     </Button>
                     <Link href={'/login'}>Already have an account? Log in.</Link>

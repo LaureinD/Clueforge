@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 export default function authLayout(
     {
         children
@@ -9,8 +7,7 @@ export default function authLayout(
 ){
     return (
         <div className="flex flex-col gap-6">
-            <p>Auth layout</p>
-            <div>
+            <div className={"w-[450px] min-h-[500px] mx-auto"}>
                 {children}
             </div>
         </div>

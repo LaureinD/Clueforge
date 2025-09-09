@@ -1,5 +1,5 @@
-import prisma from "@/database/prisma";
 import {userSeeder} from "@/database/seeders/userSeeder";
+import {prisma} from "@/database/prisma";
 
 async function main() {
     await userSeeder(50);

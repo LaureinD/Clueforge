@@ -1,0 +1,64 @@
+"use client"
+
+import {useSearchParams} from "next/navigation";
+import {useEffect, useState} from "react";
+import {verifyEmail} from "@/actions/auth/verifyEmail";
+import {Button} from "@/components/ui/button";
+
+export default function VerifyEmailFeedback(){
+    const params = useSearchParams();
+    const token = params.get('token');
+    const [message, setMessage] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const [status, setStatus] = useState<{success: boolean | null, message: string}>({
+        success: null,
+        message: "Verifying..."
+    })
+
+    useEffect(() => {
+        if (!token) {
+            setStatus({
+                success: false,
+                message: "No token provided"
+            });
+
+            setLoading(false);
+
+        } else {
+            verifyEmail(token).then(response => {
+                setStatus(response);
+                setLoading(false);
+            })
+        }
+    }, [token]);
+
+    return (
+        <div className="w-full py-12 flex flex-col items-center">
+            <h1 className="text-2xl font-bold mb-4">
+                {status.success
+                    ? "Email verified!"
+                    : (status.success === false
+                        ? "Verification failed!"
+                        : "Verifying..."
+                    )
+                }
+            </h1>
+            <p className={`text-center mb-6 ${status.success ? "text-success" : (status.success === false ? "text-danger" : "text-text-primary")}`}>
+                {status.message}
+            </p>
+
+            {status.success &&
+                <Button type={"link"} href={"/login"} color={"success"} size={"md"} className={"mt-20"}>
+                Login now
+                </Button>
+            }
+
+            {loading &&
+                <p className={"text-sm text-center mt-4"}>Please wait...</p>
+            }
+        </div>
+    )
+}
+
+// Todo: pagina stylen (gebruik message), misschien response.success (true/false) om conditioneel te stylen

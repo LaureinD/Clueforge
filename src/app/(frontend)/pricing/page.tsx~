@@ -247,9 +247,6 @@ export default function Pricing() {
                         <Button size={'md'} color={'success'}>
                             Choose Pro
                         </Button>
-                        <button className={"bg-success rounded-lg py-3 px-8 font-medium"}>
-                            Start for free!
-                        </button>
                     </div>
                 </Card>
             </div>

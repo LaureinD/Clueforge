@@ -1,20 +1,23 @@
+import React from "react";
 import Link from "next/link";
 
-type ButtonBaseType = {
+type BaseType = {
     size?: SizeKey
     color?: ColorKey
     className?: string,
     children: React.ReactNode
 }
 
-type ButtonProps = ButtonBaseType & {
-    type: "button" | "submit" | "reset",
-    disabled?: boolean,
-    onClick?: () => void,
-    href?: never,
-}
+type ButtonProps =
+    React.ButtonHTMLAttributes<HTMLButtonElement>
+    & BaseType
+    & {
+        type: "button" | "submit" | "reset",
+        disabled?: boolean,
+        href?: never,
+    }
 
-type LinkProps = ButtonBaseType & {
+type LinkProps = BaseType & {
     type: "link",
     href: string,
     disabled?: never,
@@ -31,6 +34,7 @@ type ColorKey =
     | 'success'
     | 'warning'
     | 'danger'
+    | 'surface'
 
 const colorClasses: Record<ColorKey, string> = {
     'primary': 'bg-primary text-white',
@@ -40,6 +44,7 @@ const colorClasses: Record<ColorKey, string> = {
     'success': 'bg-success text-white',
     'warning': 'bg-warning text-text-primary',
     'danger': 'bg-danger text-white',
+    'surface': 'bg-surface text-text-primary border border-background'
 }
 
 type SizeKey =
@@ -48,16 +53,19 @@ type SizeKey =
     | 'lg'
     | 'xl'
     | 'full'
+    | 'fit'
 
 const sizeClasses: Record<SizeKey, string> = {
     'sm': 'py-2 px-4 text-sm w-fit',
     'md': 'py-4 px-8 font-medium w-fit',
     'lg': 'py-5 px-12 text-lg font-medium w-fit',
     'xl': 'py-6 px-16 text-xl font-semibold w-fit',
-    'full': 'w-full py-4'
+    'full': 'w-full py-4',
+    'fit' : 'w-fit '
 }
 
-export const Button = (props: FinalButtonProps) => {
+// forwardRef only works when button is used as button. Fix when ref on button as Link is needed
+export const Button = React.forwardRef<HTMLButtonElement, FinalButtonProps> ((props, ref) => {
     const {type, size, color, disabled, onClick, href, className, children} = props;
     const styleClasses: string =
         (color
@@ -82,6 +90,7 @@ export const Button = (props: FinalButtonProps) => {
     } else {
         return (
             <button
+                ref={ref}
                 type={type}
                 disabled={disabled}
                 onClick={onClick}
@@ -91,4 +100,6 @@ export const Button = (props: FinalButtonProps) => {
             </button>
         )
     }
-}
+})
+
+Button.displayName = "Button";

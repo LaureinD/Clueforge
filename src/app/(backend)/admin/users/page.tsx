@@ -1,10 +1,8 @@
-import {getUsers} from "@/database/services/userService";
-import prisma from "@/database/prisma";
 import {KpiCard} from "@/components/kpiCard"
-import CreateUser from "@/components/forms/createUser";
 import {Suspense} from "react";
 import Loading from "@/app/loading";
 import UserIndexTable from "@/app/(backend)/admin/users/userIndexTable";
+import {prisma} from "@/database/prisma";
 
 export default async function UsersIndex(){
     const countAllUsers = await prisma.user.count({

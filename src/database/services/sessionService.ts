@@ -3,10 +3,20 @@ import {randomBytes} from "node:crypto";
 import {cookies} from "next/headers";
 import {Session, User} from "@prisma/client";
 import {NextRequest} from "next/server";
+import {ResponseCookie} from "next/dist/compiled/@edge-runtime/cookies";
+
+type ValidateResult = {
+    valid: boolean,
+    message: string,
+    userId: User["id"] | null,
+    cookieToSet: ResponseCookie | null
+}
 
 const REFRESH_TTL = 3 * 60 * 60 * 1000; // 3 hours (ms)
 const REFRESH_TTL_REMEMBER_ME = 7 * 24 * 60 * 60 * 1000; // 7 days (ms)
 const ACCESS_TTL = 20 * 60 * 1000; // 20 min (ms)
+
+// TODO: cookie access_token wordt automatisch verwijderd na cookie TTL. Hierdoor log je uit ook al is er nog een geldig refresh token. Opvangen en refreshen
 
 export async function createSession(userId: User["id"], rememberMe: boolean = false) {
     // todo: multiple sessions per user (multiple devices), remove this line.
@@ -55,60 +65,106 @@ export async function createSession(userId: User["id"], rememberMe: boolean = fa
     })
 }
 
-export async function validateSession(requestCookies: NextRequest["cookies"]) {
+export async function getSession(accessToken: Session["access_token"]) {
+    return prisma.session.findUnique({
+        where: {
+            access_token: accessToken
+        },
+        select: {
+            refresh_token: true,
+            access_token: true,
+            userId: true
+        }
+    })
+}
+
+export async function getDetailedSession(token: Session['access_token'] | Session['refresh_token'], tokenType: 'access' | 'refresh'): Promise <Session | null> {
+    if (!token) return null;
+
+    if (tokenType === "access") return prisma.session.findUnique({
+        where: {
+            access_token: token
+        }
+    })
+    else return prisma.session.findUnique({
+        where: {
+            refresh_token: token
+        }
+    })
+
+}
+
+export async function validateSession(requestCookies: NextRequest["cookies"]): Promise <ValidateResult> {
+
     const now = new Date();
     let session = null;
-    let cookieToSet = null;
+    let cookieToSet: ResponseCookie | null = null;
 
     const accessToken = requestCookies.get('access_token')?.value;
+    if (accessToken) {
+        try {
+            session = await getDetailedSession(accessToken, "access");
 
-    if (!accessToken) return {
-        valid: false,
-        message: 'No access token received.',
-        userId: null,
-        cookieToSet,
-    };
-
-    try {
-        session = await prisma.session.findUnique({
-            where: {
-                access_token: accessToken
-            }
-        });
-
-        if (!session) return {
-            valid: false,
-            message: 'No session found.',
-            userId: null,
-            cookieToSet,
-        }
-        else if (session.revoked_at) return {
-            valid: false,
-            message: 'Session is revoked.',
-            userId: null,
-            cookieToSet,
-        }
-        else if (session.access_expire < now && session.refresh_expire > now) {
-            const refreshToken = requestCookies.get("refresh_token")?.value;
-
-            if (!refreshToken) return {
+        } catch (error) {
+            return {
                 valid: false,
-                message: 'No refresh token received.',
+                message: `Error retrieving session based on access token: ${error}`,
                 userId: null,
                 cookieToSet,
             }
-            else if (refreshToken !== session.refresh_token) return {
+        }
+
+        const errorMessage = await checkSession(session, now);
+        if (errorMessage) return {
+            valid: false,
+            message: errorMessage,
+            userId: null,
+            cookieToSet,
+        }
+
+        if (session!.access_expire > now) return {
+            valid: true,
+            message: 'Session is valid.',
+            userId: session!.userId,
+            cookieToSet,
+        }
+    }
+
+    const refreshToken = requestCookies.get("refresh_token")?.value;
+    if (refreshToken) {
+        try {
+            session = await getDetailedSession(refreshToken, "refresh");
+
+        } catch (error) {
+            return {
                 valid: false,
-                message: 'Refresh token mismatch.',
+                message: `Error retrieving session based on refresh token: ${error}`,
                 userId: null,
                 cookieToSet,
             }
+        }
 
+        const errorMessage = await checkSession(session, now);
+        if (errorMessage) return {
+            valid: false,
+            message: errorMessage,
+            userId: null,
+            cookieToSet,
+        }
+
+        if (session!.refresh_expire > now) {
             try {
                 const response = await refreshSession(refreshToken);
 
                 session = response.session;
                 cookieToSet = response.cookieToSet;
+
+                return {
+                    valid: true,
+                    message: 'Session is valid.',
+                    userId: session.userId,
+                    cookieToSet,
+                }
 
             } catch (error) {
                 return {
@@ -119,34 +175,21 @@ export async function validateSession(requestCookies: NextRequest["cookies"]) {
                 }
             }
         }
-        else if (session.access_expire < now && session.refresh_expire < now) return {
-            valid: false,
-            message: "Session expired.",
-            userId: null,
-            cookieToSet,
-        }
-
-        if (session.access_expire > now) return {
-            valid: true,
-            message: 'Session is valid.',
-            userId: session.userId,
-            cookieToSet,
-        }
-        else return {
-            valid: false,
-            message: 'Invalid session.',
-            userId: null,
-            cookieToSet,
-        }
-
-    } catch (error) {
-        return {
-            valid: false,
-            message: `Error retrieving session: ${error}`,
-            userId: null,
-            cookieToSet,
-        }
     }
+
+    return {
+        valid: false,
+        message: `No active session`,
+        userId: null,
+        cookieToSet,
+    }
+}
+
+async function checkSession(session: Session | null, now: Date): Promise <string | null> {
+    if (!session) return 'No session found.';
+    else if (session.revoked_at) return 'Session is revoked.';
+    else if (session.access_expire < now && session.refresh_expire < now) return 'Session is expired.';
+    return null;
 }
 
 export async function refreshSession(refreshToken: Session['refresh_token']) {
@@ -216,6 +259,6 @@ export async function revokeAllSessions(userId: User['id']) {
             }
         })
     } catch (error) {
-        console.log('Error revoking older sessions: ', error);
+        console.log('Error revoking sessions: ', error);
     }
 }

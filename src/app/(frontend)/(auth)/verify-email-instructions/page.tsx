@@ -45,7 +45,7 @@ export default function VerifyEmailInstructions(){
                 Please click the link in the email to verify your account.
             </p>
 
-            <Button onClick={handleResend} disabled={loading} type={"button"} color={"background"} size={"md"}>
+            <Button onClick={() => handleResend} disabled={loading} type={"button"} color={"background"} size={"md"}>
                 {loading ? "Sending..." : "Resend verification email"}
             </Button>
 

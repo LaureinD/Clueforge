@@ -17,19 +17,33 @@ export type UpdateUserData =
         deleted_at?: Date,
     }
 
+export type GetUserData = Omit<CreateUserData, "password">
+
 // Index
-export async function getUsers(): Promise<User[]> {
+export async function getUsers() {
     return prisma.user.findMany();
 }
  // Read
-export async function getUser(id: number): Promise<User | null> {
+export async function getUser(id: User["id"]) {
     return prisma.user.findUnique({
         where: { id },
+        select: {
+            id: true,
+            email: true,
+            first_name: true,
+            last_name: true,
+        }
     })
 }
 
+export async function getDetailedUser(id: User["id"]) {
+    return prisma.user.findUnique(({
+        where: { id }
+    }))
+}
+
 // Create
-export async function addUser(data: CreateUserData): Promise<User> {
+export async function addUser(data: CreateUserData) {
     try {
         return await prisma.user.create({data})
     } catch (error) {
@@ -38,7 +52,7 @@ export async function addUser(data: CreateUserData): Promise<User> {
 }
 
 // Update
-export async function updateUser(id:number, data: UpdateUserData): Promise<User> {
+export async function updateUser(id: User["id"], data: UpdateUserData) {
     try {
         return await prisma.user.update({
             where: { id },
@@ -50,13 +64,13 @@ export async function updateUser(id:number, data: UpdateUserData): Promise<User>
 }
 
 // Soft delete
-export async function deleteUser(id: number): Promise<User> {
+export async function deleteUser(id: User["id"]) {
     const now: Date = new Date();
     return await updateUser(id, { deleted_at: now });
 }
 
 // Force delete
-export async function forceDeleteUser(id: number): Promise<User> {
+export async function forceDeleteUser(id: User["id"]) {
     try {
         return await prisma.user.delete({
             where: { id },

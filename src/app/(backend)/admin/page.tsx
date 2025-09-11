@@ -1,5 +1,12 @@
-export default function dashboard(){
+import {getCurrentUser} from "@/database/services/authService";
+
+export default async function dashboard(){
+    const currentUser = await getCurrentUser();
+
     return (
-        <h1>Dashboard</h1>
+        <div>
+            <h1>Dashboard</h1>
+            <p>{currentUser?.first_name}</p>
+        </div>
     )
 }
